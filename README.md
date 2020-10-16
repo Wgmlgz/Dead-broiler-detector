@@ -1,2 +1,2 @@
-# Detector
+# Brawler detector
 awesome
