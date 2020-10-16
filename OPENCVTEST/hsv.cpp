@@ -116,8 +116,8 @@ int main() {
 
     /* main cycle */
     cout << "enter frames numbers: ";
-    int start_frame = 200;
-    int end_frame = 250;
+    int start_frame = 0;
+    int end_frame = 700;
     //cin >> do_frames;
 
     for (int i = 0; i < start_frame; ++i) {
