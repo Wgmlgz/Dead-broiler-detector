@@ -1,2 +1,2 @@
-# Nice-cock-detector
- awesome balls
+# Broiler detector
+awesome
