@@ -97,7 +97,7 @@ int main() {
     // setup values
     cout << endl << "enter start_frame, end_frame, step: ";
     int start_frame = 0;
-    int end_frame = 3;
+    int end_frame = 700;
     int step = 1;
     
     // input values (uncomment if need)
@@ -150,7 +150,7 @@ int main() {
             for (int j = 0; j < tmp_res.cols; j++)
                 sum[i][j] += (uint8_t)tmp_res.at<int8_t>(i, j);
 
-        waitKey(30);
+        waitKey(1);
     }
     cout << "end scan" << endl;
 
@@ -190,5 +190,5 @@ int main() {
 
     // end
     cout << "end!" << endl;
-    waitKey(1000000000000);
+    waitKey();
 }
