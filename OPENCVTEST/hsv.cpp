@@ -96,8 +96,8 @@ int main() {
 
     // setup values
     cout << endl << "enter start_frame, end_frame, step: ";
-    int start_frame = 0;
-    int end_frame = 3;
+    int start_frame = 697;
+    int end_frame = 800;
     int step = 1;
     
     // input values (uncomment if need)
@@ -111,9 +111,12 @@ int main() {
     // skip frames
     Mat frame;
     for (int i = 0; i < start_frame; i += step) {
+        Mat old_frame = frame;
         capture >> frame;
-        if (frame.empty())
+        if (frame.empty()) {
+            frame = old_frame;
             break;
+        }
     }
 
     // init summ buffer
@@ -124,8 +127,12 @@ int main() {
     for (int i = start_frame; i < end_frame; i += step) {
         // load frame
         cout << "analizing frame " << i << endl;
+        Mat old_frame = frame;
         capture >> frame;
-        if (frame.empty()) break;
+        if (frame.empty()) {
+            frame = old_frame;
+            break;
+        }
 
         // to hsv
         cvtColor(frame, frame_hsv, COLOR_BGR2HSV);
