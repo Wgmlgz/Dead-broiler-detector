@@ -8,7 +8,7 @@
 using namespace cv;
 using namespace std;
 
-int main()
+int main1()
 {
     VideoCapture capture(samples::findFile("vid.avi"));
     if (!capture.isOpened()) {
