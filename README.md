@@ -1,2 +1,2 @@
-# Broiler detector
+# Detector
 awesome
