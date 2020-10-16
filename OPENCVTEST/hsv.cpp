@@ -32,7 +32,7 @@ Mat isolateChannel(Mat input, int min, int max) {
     return ret;
 }
 
-Mat multipliMat(Mat a, Mat b) {
+Mat multipliy(Mat a, Mat b) {
     Mat ret = a.clone();
 
     for (int i = 0; i < ret.rows; i++) {
@@ -184,7 +184,7 @@ int main() {
 
     // filter
     Mat mask = imread("mask.png", IMREAD_GRAYSCALE);
-    result = multipliMat(mask, result);
+    result = multipliy(mask, result);
     result = isolateChannel(result, 100, 255);
     blur(result, result, Size(30, 30));
     result = isolateChannel(result, 90, 255);
