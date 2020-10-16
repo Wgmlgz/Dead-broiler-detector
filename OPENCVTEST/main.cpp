@@ -69,7 +69,7 @@ int main1()
     }
     cout << "end scan" << endl;
     vector<vector<int64_t>> sum(buff[0].rows, vector<int64_t>(buff[0].cols));
-    cout << "vector complite" << endl;
+    cout << "vector complete" << endl;
     for (int k = 0; k < buff.size(); ++k) {
         cout << "sum frame " << to_string(k) << endl;
         for (int i = 0; i < buff[k].rows; i++) {

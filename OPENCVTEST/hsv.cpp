@@ -117,7 +117,7 @@ int main() {
     /* main cycle */
     cout << "enter frames numbers: ";
     int start_frame = 200;
-    int end_frame = 202;
+    int end_frame = 250;
     //cin >> do_frames;
 
     for (int i = 0; i < start_frame; ++i) {
@@ -166,17 +166,17 @@ int main() {
         //trackbarSmin(sliderSmax, 0);
         //trackbarVmin(sliderVmax, 0);
         //
-        //waitKey(100000);
+        waitKey(10);
     }
 
     cout << "end scan" << endl;
-    vector<vector<uint8_t>> sum(buff[0].rows, vector<uint8_t>(buff[0].cols));
-    cout << "vector complite" << endl;
+    vector<vector<uint64_t>> sum(buff[0].rows, vector<uint64_t>(buff[0].cols));
+    cout << "vector complete" << endl;
     for (int k = 0; k < buff.size(); ++k) {
         cout << "sum frame " << to_string(k) << endl;
         for (int i = 0; i < buff[k].rows; i++) {
             for (int j = 0; j < buff[k].cols; j++) {
-                sum[i][j] += buff[k].at<int8_t>(i, j);
+                sum[i][j] += (uint8_t)buff[k].at<int8_t>(i, j);
             }
         }
     }
