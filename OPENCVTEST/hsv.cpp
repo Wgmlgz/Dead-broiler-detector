@@ -99,7 +99,7 @@ int main() {
     int start_frame = 0;
     int end_frame = 700;
     int step = 1;
-    
+
     // input values (uncomment if need)
     //cin >> start_frame;
     //cin >> end_frame;
@@ -111,9 +111,12 @@ int main() {
     // skip frames
     Mat frame;
     for (int i = 0; i < start_frame; i += step) {
+        Mat old_frame = frame;
         capture >> frame;
-        if (frame.empty())
+        if (frame.empty()) {
+            frame = old_frame;
             break;
+        }
     }
 
     // init summ buffer
@@ -123,9 +126,13 @@ int main() {
     // main loop
     for (int i = start_frame; i < end_frame; i += step) {
         // load frame
-        cout << "analizing frame " << i << endl;
+        cout << "analyzing frame " << i << endl;
+        Mat old_frame = frame;
         capture >> frame;
-        if (frame.empty()) break;
+        if (frame.empty()) {
+            frame = old_frame;
+            break;
+        }
 
         // to hsv
         cvtColor(frame, frame_hsv, COLOR_BGR2HSV);
@@ -144,7 +151,7 @@ int main() {
         imshow("Main window (tmp frame vision / result)", tmp_res);
         string savingName = to_string(i) + ".jpg";
         imwrite(savingName, tmp_res);
-        
+
         // add value to summ buffer
         for (int i = 0; i < tmp_res.rows; i++)
             for (int j = 0; j < tmp_res.cols; j++)
