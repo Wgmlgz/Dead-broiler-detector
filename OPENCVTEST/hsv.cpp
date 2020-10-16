@@ -1,6 +1,7 @@
 #include <iostream>
 #include <opencv2/core.hpp>
 #include <opencv2/highgui.hpp>
+#include <opencv2/highgui/highgui.hpp>
 #include <opencv2/imgproc.hpp>
 #include <opencv2/videoio.hpp>
 #include <opencv2/video.hpp>
@@ -8,30 +9,7 @@
 using namespace cv;
 using namespace std;
 
-Mat _hsv[3], frame_hsv, _cum[3];
-vector<Mat> buff;
-
-const int slider_max = 255;
-
-// 0 52
-int sliderHmin = 0;
-// 0 119
-int sliderSmin = 0;
-// 170 211
-int sliderVmin = 0;
-
-int sliderHmax = 255;
-int sliderSmax = 255;
-int sliderVmax = 255;
-
-
-int sliderHmin_ = 0;
-int sliderSmin_ = 0;
-int sliderVmin_ = 0;
-
-int sliderHmax_ = 255;
-int sliderSmax_ = 255;
-int sliderVmax_ = 255;
+Mat _hsv[3], frame_hsv, result;
 
 Mat isolateChannel(Mat input, int min, int max) {
     Mat ret = input.clone();
@@ -54,6 +32,31 @@ Mat isolateChannel(Mat input, int min, int max) {
     return ret;
 }
 
+Mat multipliMat(Mat a, Mat b) {
+    Mat ret = a.clone();
+
+    for (int i = 0; i < ret.rows; i++) {
+        for (int j = 0; j < ret.cols; j++) {
+            uint8_t pix1 = a.at<int8_t>(i, j);
+            uint8_t pix2 = b.at<int8_t>(i, j);
+
+            double pd1 = pix1;
+            double pd2 = pix2;
+
+            pd1 /= 255;
+            pd2 /= 255;
+
+            pd1 *= pd2;
+            pd1 *= 255;
+
+            ret.at<int8_t>(i, j) = pd1;
+
+        }
+    }
+
+    return ret;
+}
+
 Mat substractMat(Mat a, Mat b, Mat c) {
     Mat ret = a.clone();
 
@@ -67,141 +70,123 @@ Mat substractMat(Mat a, Mat b, Mat c) {
 
     return ret;
 }
-static void trackbarHmin(int, void*){
-    if (sliderHmin_ == sliderHmin) return;
-    imshow("h", isolateChannel(_hsv[0], sliderHmin, sliderHmax));
-    sliderHmin_ = sliderHmin;
-}
-static void trackbarSmin(int, void*) {
-    if (sliderSmin_ == sliderSmin) return;
-    imshow("s", isolateChannel(_hsv[1], sliderSmin, sliderSmax));
-    sliderSmin_ = sliderSmin;
-}
-static void trackbarVmin(int, void*) {
-    if (sliderVmin_ == sliderVmin) return;
-    imshow("v", isolateChannel(_hsv[2], sliderVmin, sliderVmax));
-    sliderVmin_ = sliderVmin;
-}
-
-static void trackbarHmax(int, void*) {
-    if (sliderHmax_ == sliderHmax) return;
-    imshow("h", isolateChannel(_hsv[0], sliderHmin, sliderHmax));
-    sliderHmax_ = sliderHmax;
-}
-static void trackbarSmax(int, void*) {
-    if (sliderSmax_ == sliderSmax) return;
-    imshow("s", isolateChannel(_hsv[1], sliderSmin, sliderSmax));
-    sliderSmax_ = sliderSmax;
-}
-static void trackbarVmax(int, void*) {
-    if (sliderVmax_ == sliderVmax) return;
-    imshow("v", isolateChannel(_hsv[2], sliderVmin, sliderVmax));
-    sliderVmax_ = sliderVmax;
-}
 
 int main() {
-    /* load stuff */
+    cout << "_________________________________" << endl;
+    cout << "|                               |" << endl;
+    cout << "|Dead broiler detector by Wgmlgz|" << endl;
+    cout << "|_______________________________|" << endl;
+    cout << endl;
 
+    /* load stuff */
+    // video load
     VideoCapture capture(samples::findFile("vid.avi"));
     if (!capture.isOpened()) {
         //error in opening the video input
         cerr << "Unable to open file!" << endl;
         return 0;
     }
-    namedWindow("Cum", WINDOW_FREERATIO);
+
+    // windows initialization
+    namedWindow("Main window (tmp frame vision / result)", WINDOW_FREERATIO);
     namedWindow("h", WINDOW_FREERATIO);
     namedWindow("s", WINDOW_FREERATIO);
     namedWindow("v", WINDOW_FREERATIO);
 
 
-    /* main cycle */
-    cout << "enter frames numbers: ";
+    // setup values
+    cout << endl << "enter start_frame, end_frame, step: ";
     int start_frame = 0;
     int end_frame = 700;
-    //cin >> do_frames;
+    int step = 1;
+    
+    // input values (uncomment if need)
+    //cin >> start_frame;
+    //cin >> end_frame;
+    //cin >> step;
 
-    for (int i = 0; i < start_frame; ++i) {
-        Mat frame;
+    cout << endl << "input complite or default values are used" << endl;
+
+    /* main cycle */
+    // skip frames
+    Mat frame;
+    for (int i = 0; i < start_frame; i += step) {
         capture >> frame;
         if (frame.empty())
             break;
     }
-    for (int i = start_frame; i < end_frame; ++i) {
+
+    // init summ buffer
+    capture >> frame;
+    vector<vector<uint64_t>> sum(frame.rows, vector<uint64_t>(frame.cols));
+
+    // main loop
+    for (int i = start_frame; i < end_frame; i += step) {
         // load frame
-        cout << "frame " << i << endl;
-        Mat frame;
+        cout << "analizing frame " << i << endl;
         capture >> frame;
-        if (frame.empty())
-            break;
+        if (frame.empty()) break;
 
         // to hsv
         cvtColor(frame, frame_hsv, COLOR_BGR2HSV);
         split(frame_hsv, _hsv);
-
         _hsv[0] = isolateChannel(_hsv[0], 162, 194);
         _hsv[1] = isolateChannel(_hsv[1], 136, 255);
         _hsv[2] = isolateChannel(_hsv[2], 44, 85);
 
-        // show
+        // show hsv
         imshow("h", _hsv[0]);
         imshow("s", _hsv[1]);
         imshow("v", _hsv[2]);
 
-        Mat cum = substractMat(_hsv[0], _hsv[1], _hsv[2]);
-        imshow("Cum", cum);
-        buff.push_back(cum);
-        //createTrackbar("H min", "h", &sliderHmin, slider_max, trackbarHmin);
-        //createTrackbar("S min", "s", &sliderSmin, slider_max, trackbarSmin);
-        //createTrackbar("V min", "v", &sliderVmin, slider_max, trackbarVmin);
-        //
-        //createTrackbar("H max", "h", &sliderHmax, slider_max, trackbarHmax);
-        //createTrackbar("S max", "s", &sliderSmax, slider_max, trackbarSmax);
-        //createTrackbar("V max", "v", &sliderVmax, slider_max, trackbarVmax);
-        //
-        //trackbarHmin(sliderHmin, 0);
-        //trackbarSmin(sliderSmin, 0);
-        //trackbarVmin(sliderVmin, 0);
-        //
-        //trackbarHmin(sliderHmax, 0);
-        //trackbarSmin(sliderSmax, 0);
-        //trackbarVmin(sliderVmax, 0);
-        //
-        waitKey(10);
-    }
+        // show and save tmp result
+        Mat tmp_res = substractMat(_hsv[0], _hsv[1], _hsv[2]);
+        imshow("Main window (tmp frame vision / result)", tmp_res);
+        string savingName = to_string(i) + ".jpg";
+        imwrite(savingName, tmp_res);
+        
+        // add value to summ buffer
+        for (int i = 0; i < tmp_res.rows; i++)
+            for (int j = 0; j < tmp_res.cols; j++)
+                sum[i][j] += (uint8_t)tmp_res.at<int8_t>(i, j);
 
+        waitKey(30);
+    }
     cout << "end scan" << endl;
-    vector<vector<uint64_t>> sum(buff[0].rows, vector<uint64_t>(buff[0].cols));
-    cout << "vector complete" << endl;
-    for (int k = 0; k < buff.size(); ++k) {
-        cout << "sum frame " << to_string(k) << endl;
-        for (int i = 0; i < buff[k].rows; i++) {
-            for (int j = 0; j < buff[k].cols; j++) {
-                sum[i][j] += (uint8_t)buff[k].at<int8_t>(i, j);
-            }
-        }
-    }
-    cout << "end sum" << endl;
+
+
+    /* result */
+    // find max value
     double max = 0;
-    for (int i = 0; i < sum.size(); i++) {
-        for (int j = 0; j < sum[0].size(); j++) {
-            if (sum[i][j] > max) {
-                max = sum[i][j];
-            }
-        }
-    }
+    for (int i = 0; i < sum.size(); i++)
+        for (int j = 0; j < sum[0].size(); j++)
+            if (sum[i][j] > max) max = sum[i][j];
     cout << "end max" << endl;
 
-    Mat result = buff[0];
+    // normalize
+    Mat result = frame;
     for (int i = 0; i < sum.size(); i++) {
         for (int j = 0; j < sum[0].size(); j++) {
             int tmp = (((double)sum[i][j]) / max) * 255;
             result.at<int8_t>(i, j) = tmp;
-            result.at<int8_t>(i, j) = tmp;
-            result.at<int8_t>(i, j) = tmp;
         }
     }
-    cout << "end res" << endl;
-    imshow("Cum", result);
-    imwrite("shvCUM!!!!!!!.png", result);
-    waitKey();
+    cout << "end normalize" << endl;
+
+    // filter
+    Mat mask = imread("mask.png", IMREAD_GRAYSCALE);
+    result = multipliMat(mask, result);
+    result = isolateChannel(result, 100, 255);
+    blur(result, result, Size(30, 30));
+    result = isolateChannel(result, 90, 255);
+    cout << "end filter" << endl;
+
+    // output
+    imshow("Main window (tmp frame vision / result)", result);
+    imwrite("result.png", result);
+    cout << "end output" << endl;
+
+    // end
+    cout << "end!" << endl;
+    waitKey(1000000000000);
 }

@@ -21,5 +21,8 @@
     <ClCompile Include="hsv.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="tmp_stuff.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>
