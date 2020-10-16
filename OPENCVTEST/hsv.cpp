@@ -32,7 +32,7 @@ Mat isolateChannel(Mat input, int min, int max) {
     return ret;
 }
 
-Mat multipliMat(Mat a, Mat b) {
+Mat multiplyMat(Mat a, Mat b) {
     Mat ret = a.clone();
 
     for (int i = 0; i < ret.rows; i++) {
@@ -123,7 +123,7 @@ int main() {
     // main loop
     for (int i = start_frame; i < end_frame; i += step) {
         // load frame
-        cout << "analizing frame " << i << endl;
+        cout << "analyzing frame " << i << endl;
         capture >> frame;
         if (frame.empty()) break;
 
