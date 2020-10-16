@@ -97,7 +97,7 @@ int main() {
     // setup values
     cout << endl << "enter start_frame, end_frame, step: ";
     int start_frame = 0;
-    int end_frame = 700;
+    int end_frame = 3;
     int step = 1;
     
     // input values (uncomment if need)
@@ -168,7 +168,9 @@ int main() {
     for (int i = 0; i < sum.size(); i++) {
         for (int j = 0; j < sum[0].size(); j++) {
             int tmp = (((double)sum[i][j]) / max) * 255;
-            result.at<int8_t>(i, j) = tmp;
+            result.at<Vec3b>(i, j)[0] = tmp;
+            result.at<Vec3b>(i, j)[1] = tmp;
+            result.at<Vec3b>(i, j)[2] = tmp;
         }
     }
     cout << "end normalize" << endl;
