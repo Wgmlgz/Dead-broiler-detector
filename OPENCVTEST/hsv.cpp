@@ -1,4 +1,4 @@
-#include <iostream>
+﻿#include <iostream>
 #include <opencv2/core.hpp>
 #include <opencv2/highgui.hpp>
 #include <opencv2/highgui/highgui.hpp>
@@ -83,7 +83,6 @@ int main() {
     // video load
     VideoCapture capture(samples::findFile("data to analyze\\vid.avi"));
     if (!capture.isOpened()) {
-        //error in opening the video input
         cerr << "Unable to open file!" << endl;
         return 0;
     }
@@ -97,9 +96,9 @@ int main() {
 
     // setup values
     cout << endl << "enter start_frame, end_frame, step: ";
-    int start_frame = 200;
-    int end_frame = 250;
-    int step = 10;
+    int start_frame = 0;
+    int end_frame = 700;
+    int step = 30;
 
     // input values (uncomment if need)
     //cin >> start_frame;
@@ -184,6 +183,7 @@ int main() {
     cout << "end normalize" << endl;
 
     // filter
+    imwrite("result\\rough result.png", result);
     Mat mask = imread("data to analyze\\mask.png", IMREAD_GRAYSCALE);
     result = multipliy(result, mask);
     imwrite("result\\with mask.png", result);
@@ -192,11 +192,55 @@ int main() {
     blur(result, result, Size(30, 30));
     imwrite("result\\with mask, isolate, blur.png", result);
     result = isolateChannel(result, 90, 255);
-    imwrite("result\\result.png", result);
+    imwrite("result\\with mask, isolate, blur, isolate.png", result);
     cout << "end filter" << endl;
 
-    // output
-    imshow("Main window (tmp frame vision / result)", result);
+
+    // display result video
+    destroyWindow("h");
+    destroyWindow("s");
+    destroyWindow("v");
+
+    vector<vector<Point>> contours;
+    vector<Vec4i> hierarchy;
+
+    findContours(result, contours, hierarchy, RETR_EXTERNAL, CHAIN_APPROX_SIMPLE);
+    Rect objectBoundingRectangle = Rect(0, 0, 0, 0);
+
+    VideoCapture capture1(samples::findFile("data to analyze\\vid.avi"));
+    if (!capture1.isOpened()) {
+        cerr << "Unable to open file!" << endl;
+        return 0;
+    }
+    for (int i = 0; true; i++) {
+        cout << "displaying frame " << i << endl;
+        capture1 >> frame;
+        if (frame.empty()) {
+            break;
+        }
+
+        putText(frame, "Total dead chicken: " + to_string(contours.size()), Point(50, 150), 1, 3, Scalar(255, 255, 255), 4);
+        for (int i = 0; i < contours.size(); ++i) {
+            objectBoundingRectangle = boundingRect(contours.at(i));
+
+            int x = objectBoundingRectangle.x + objectBoundingRectangle.width / 2;
+            int y = objectBoundingRectangle.y + objectBoundingRectangle.height / 2;
+
+            rectangle(frame,
+                Rect(objectBoundingRectangle.x - 20,
+                    objectBoundingRectangle.y - 20,
+                    objectBoundingRectangle.width + 40,
+                    objectBoundingRectangle.height + 40),
+                Scalar(95, 105, 234), 4);
+            line(frame, Point(x, y + 10), Point(x, y - 10), Scalar(125, 194, 119), 2);
+            line(frame, Point(x + 10, y), Point(x - 10, y), Scalar(125, 194, 119), 2);
+            putText(frame, "Chicken " + to_string(i), Point(objectBoundingRectangle.x - 30, objectBoundingRectangle.y - 30), 1, 3, Scalar(20, 20, 20), 4);
+        }
+
+        imshow("Main window (tmp frame vision / result)", frame);
+        if (i == 0) imwrite("result\\result.png", frame);
+        waitKey(30);
+    }
     cout << "end output" << endl;
 
     // end
