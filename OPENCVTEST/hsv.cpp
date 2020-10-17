@@ -33,11 +33,11 @@ Mat isolateChannel(Mat input, int min, int max) {
 }
 
 Mat multipliy(Mat a, Mat b) {
-    Mat ret = a.clone();
+    Mat ret = b.clone();
 
     for (int i = 0; i < ret.rows; i++) {
         for (int j = 0; j < ret.cols; j++) {
-            uint8_t pix1 = a.at<int8_t>(i, j);
+            uint8_t pix1 = a.at<Vec3b>(i, j)[0];
             uint8_t pix2 = b.at<int8_t>(i, j);
 
             double pd1 = pix1;
@@ -62,8 +62,9 @@ Mat substractMat(Mat a, Mat b, Mat c) {
 
     for (int i = 0; i < ret.rows; i++) {
         for (int j = 0; j < ret.cols; j++) {
-            uint8_t pix = a.at<int8_t>(i, j) - (b.at<int8_t>(i, j) + c.at<int8_t>(i, j));
-
+            int pix = (uint8_t)a.at<int8_t>(i, j) - ((uint8_t)b.at<int8_t>(i, j) + (uint8_t)c.at<int8_t>(i, j));
+            if (pix < 0) pix = 0;
+            if (pix > 255) pix = 255;
             ret.at<int8_t>(i, j) = pix;
         }
     }
@@ -80,7 +81,7 @@ int main() {
 
     /* load stuff */
     // video load
-    VideoCapture capture(samples::findFile("vid.avi"));
+    VideoCapture capture(samples::findFile("data to analyze\\vid.avi"));
     if (!capture.isOpened()) {
         //error in opening the video input
         cerr << "Unable to open file!" << endl;
@@ -96,9 +97,9 @@ int main() {
 
     // setup values
     cout << endl << "enter start_frame, end_frame, step: ";
-    int start_frame = 0;
-    int end_frame = 700;
-    int step = 1;
+    int start_frame = 200;
+    int end_frame = 250;
+    int step = 10;
 
     // input values (uncomment if need)
     //cin >> start_frame;
@@ -112,7 +113,7 @@ int main() {
     Mat frame;
     for (int i = 0; i < start_frame; i += step) {
         Mat old_frame = frame;
-        capture >> frame;
+        for (int j = 0; j < step; ++j) capture >> frame;
         if (frame.empty()) {
             frame = old_frame;
             break;
@@ -128,7 +129,7 @@ int main() {
         // load frame
         cout << "analyzing frame " << i << endl;
         Mat old_frame = frame;
-        capture >> frame;
+        for(int j = 0; j < step; ++j) capture >> frame;
         if (frame.empty()) {
             frame = old_frame;
             break;
@@ -149,7 +150,7 @@ int main() {
         // show and save tmp result
         Mat tmp_res = substractMat(_hsv[0], _hsv[1], _hsv[2]);
         imshow("Main window (tmp frame vision / result)", tmp_res);
-        string savingName = to_string(i) + ".jpg";
+        string savingName = "tmp result\\" + to_string(i) + ".jpg";
         imwrite(savingName, tmp_res);
 
         // add value to summ buffer
@@ -183,16 +184,19 @@ int main() {
     cout << "end normalize" << endl;
 
     // filter
-    Mat mask = imread("mask.png", IMREAD_GRAYSCALE);
-    result = multipliy(mask, result);
+    Mat mask = imread("data to analyze\\mask.png", IMREAD_GRAYSCALE);
+    result = multipliy(result, mask);
+    imwrite("result\\with mask.png", result);
     result = isolateChannel(result, 100, 255);
+    imwrite("result\\with mask, isolate.png", result);
     blur(result, result, Size(30, 30));
+    imwrite("result\\with mask, isolate, blur.png", result);
     result = isolateChannel(result, 90, 255);
+    imwrite("result\\result.png", result);
     cout << "end filter" << endl;
 
     // output
     imshow("Main window (tmp frame vision / result)", result);
-    imwrite("result.png", result);
     cout << "end output" << endl;
 
     // end
