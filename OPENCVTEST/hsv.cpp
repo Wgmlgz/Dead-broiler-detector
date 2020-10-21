@@ -72,7 +72,7 @@ Mat substractMat(Mat a, Mat b, Mat c) {
     return ret;
 }
 
-int main() {
+int main2() {
     cout << "_________________________________" << endl;
     cout << "|                               |" << endl;
     cout << "|Dead broiler detector by Wgmlgz|" << endl;

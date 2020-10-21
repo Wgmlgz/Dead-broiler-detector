@@ -147,6 +147,7 @@
   <ItemGroup>
     <ClCompile Include="hsv.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="optical.cpp" />
     <ClCompile Include="tmp_stuff.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
