@@ -27,5 +27,8 @@
     <ClCompile Include="optical.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="text_editor.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

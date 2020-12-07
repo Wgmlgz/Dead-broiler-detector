@@ -91,3 +91,12 @@ trackbar_min(slider_max_, 0);
 
 result = imread("shvCUM!!!!!!!.png", IMREAD_GRAYSCALE);
 */
+
+
+    // cursor
+/*if (last_cursor) {
+  cv::line(frame, cv::Point(cur_str.size() * 13.9 + 11, 10),
+           cv::Point(cur_str.size() * 13.5 + 11, 30),
+           cv::Scalar(125, 194, 119), 2);
+}
+last_cursor = !last_cursor;*/

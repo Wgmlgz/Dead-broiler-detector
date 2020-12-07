@@ -11,7 +11,7 @@ const char* params
 = "{ help h         |           | Print usage }"
 "{ input          | vtest.avi | Path to a video or a sequence of image }"
 "{ algo           | MOG2      | Background subtraction method (KNN, MOG2) }";
-int main(int argc, char* argv[])
+int main33(int argc, char* argv[])
 {
     CommandLineParser parser(argc, argv, params);
     parser.about("This program shows how to use background subtraction methods provided by "
